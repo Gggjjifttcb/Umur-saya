@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Umur Real-time Lengkap dengan Terbilang</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #1f1c2c, #928dab);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+    }
+    .container {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      text-align: center;
+      max-width: 90%;
+      width: 480px;
+    }
+    h2 {
+      font-size: 26px;
+      margin-bottom: 15px;
+    }
+    #umurSingkat {
+      font-size: 22px;
+      font-weight: bold;
+      color: #00ffcc;
+      margin-bottom: 20px;
+    }
+    #umurDetail {
+      font-size: 16px;
+      line-height: 1.7;
+    }
+    #umurDetail strong {
+      color: #ffd166;
+    }
+    .terbilang {
+      font-style: italic;
+      font-size: 14px;
+      color: #d0ffea;
+    }
+    @media (max-width: 500px) {
+      .container {
+        padding: 25px;
+      }
+      h2 {
+        font-size: 20px;
+      }
+      #umurSingkat {
+        font-size: 18px;
+      }
+      #umurDetail {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Umur Anda (24 April 2003)</h2>
+    <div id="umurSingkat">Menghitung...</div>
+    <div id="umurDetail"></div>
+  </div>
+
+  <script>
+    const birthDate = new Date("2003-04-24T00:00:00");
+
+    function angkaTerbilang(n) {
+      const satuan = ["", "satu", "dua", "tiga", "empat", "lima", "enam", "tujuh", "delapan", "sembilan"];
+      const belasan = ["sepuluh", "sebelas", "dua belas", "tiga belas", "empat belas", "lima belas", "enam belas", "tujuh belas", "delapan belas", "sembilan belas"];
+      const ribuan = ["", "ribu", "juta", "miliar", "triliun"];
+
+      function bacaRatusan(num) {
+        let hasil = "";
+        if (num >= 100) {
+          if (Math.floor(num / 100) === 1) {
+            hasil += "seratus ";
+          } else {
+            hasil += satuan[Math.floor(num / 100)] + " ratus ";
+          }
+          num %= 100;
+        }
+        if (num >= 20) {
+          hasil += satuan[Math.floor(num / 10)] + " puluh ";
+          num %= 10;
+        } else if (num >= 10) {
+          hasil += belasan[num - 10] + " ";
+          num = 0;
+        }
+        if (num > 0) {
+          hasil += satuan[num] + " ";
+        }
+        return hasil.trim();
+      }
+
+      if (n === 0) return "nol";
+
+      let hasil = "";
+      let i = 0;
+
+      while (n > 0) {
+        const tigaDigit = n % 1000;
+        if (tigaDigit !== 0) {
+          const segmen = bacaRatusan(tigaDigit);
+          if (i === 1 && tigaDigit === 1) {
+            hasil = "seribu " + hasil;
+          } else {
+            hasil = segmen + (ribuan[i] ? " " + ribuan[i] : "") + " " + hasil;
+          }
+        }
+        n = Math.floor(n / 1000);
+        i++;
+      }
+
+      return hasil.trim();
+    }
+
+    function updateUmur() {
+      const now = new Date();
+
+      // Format pendek (tahun + sisa hari)
+      let years = now.getFullYear() - birthDate.getFullYear();
+      const thisYearBirthday = new Date(now.getFullYear(), birthDate.getMonth(), birthDate.getDate());
+      if (now < thisYearBirthday) years--;
+
+      const lastBirthday = new Date(now.getFullYear() - (now < thisYearBirthday ? 1 : 0), birthDate.getMonth(), birthDate.getDate());
+      const daysSinceLastBirthday = Math.floor((now - lastBirthday) / (1000 * 60 * 60 * 24));
+
+      // Format detail
+      const diffMs = now - birthDate;
+      const totalDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+      const totalHours = Math.floor(diffMs / (1000 * 60 * 60));
+      const totalMinutes = Math.floor(diffMs / (1000 * 60));
+      const totalSeconds = Math.floor(diffMs / 1000);
+
+      document.getElementById("umurSingkat").innerText = `${years} tahun ${daysSinceLastBirthday} hari`;
+
+      document.getElementById("umurDetail").innerHTML = `
+        Total waktu hidup:<br>
+        <strong>${totalDays}</strong> hari<br>
+        <span class="terbilang">(${angkaTerbilang(totalDays)} hari)</span><br><br>
+        <strong>${totalHours}</strong> jam<br>
+        <span class="terbilang">(${angkaTerbilang(totalHours)} jam)</span><br><br>
+        <strong>${totalMinutes}</strong> menit<br>
+        <span class="terbilang">(${angkaTerbilang(totalMinutes)} menit)</span><br><br>
+        <strong>${totalSeconds}</strong> detik<br>
+        <span class="terbilang">(${angkaTerbilang(totalSeconds)} detik)</span>
+      `;
+    }
+
+    updateUmur();
+    setInterval(updateUmur, 1000); // update setiap detik
+  </script>
+</body>
+  </html>
